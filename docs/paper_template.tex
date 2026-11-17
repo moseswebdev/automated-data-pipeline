@@ -42,6 +42,19 @@ We evaluated the system across 1,100 fault-injection trials (1\% to 20\% corrupt
 \label{fig:scalability}
 \end{figure}
 
+\section{Discussion}
+The empirical results demonstrate that embedded, rule-based validation in Python and SQL achieves high throughput (63,854 rows/sec) without the operational complexity of distributed cluster frameworks. Also, by routing defective rows to \texttt{rejected_sales} rather than halting execution or silently dropping tuples, operations teams retain full auditability and can replay quarantined data after upstream schema fixes. Setting the SUCCESS threshold at $Q_{\text{run}} \geq 95.0\%$ provides a practical balance between alert fatigue and early detection of systemic point-of-sale errors.
+
+\section{Threats to Validity}
+\subsection{Internal Validity}
+Benchmark latencies were measured on a single local workstation using in-memory SQLite to isolate compute and serialization overhead. In production deployments using networked PostgreSQL instances, TCP round-trip latency and concurrent write locks may moderately reduce peak row/sec throughput.
+
+\subsection{External Validity}
+Our evaluation relies on procedurally generated retail datasets with known statistical distributions (Pareto product popularity and log-normal pricing). While fault injection covered six common anomaly classes, real-world enterprise data may exhibit subtle semantic drift or cross-record corruption patterns not captured by static rules.
+
+\subsection{Construct Validity}
+The linear Data Quality Score ($Q_{\text{run}}$) weights all rejected records equally regardless of financial magnitude. A rejected transaction worth \$\1,000 carries the same score penalty as a transaction worth \$\10, motivating revenue-weighted quality metrics in future releases.
+
 \section{Conclusion}
 We presented a reproducible ETL and data quality monitoring architecture that eliminates silent data loss while automating business reporting and dashboard observability.
 
