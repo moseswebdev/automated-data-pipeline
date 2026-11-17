@@ -1,6 +1,6 @@
 # Automated Business Reporting, Data Cleaning and Quality Monitoring System
 
-![Pipeline CI](https://github.com)
+[![Pipeline CI](https://github.commoseswebdev/automated-data-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.commoseswebdev/automated-data-pipeline/actions)
 
 End-to-end Python and SQL data engineering platform that ingests retail sales and inventory data, enforces row-level data quality and anomaly quarantine rules, loads curated analytics tables, exports automated CSV/Excel executive reports, and monitors pipeline health in Streamlit.
 
