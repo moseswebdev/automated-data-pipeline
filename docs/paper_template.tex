@@ -23,6 +23,13 @@ ETL Pipeline, Data Quality Monitoring, Anomaly Quarantine, Business Intelligence
 \section{Introduction}
 Small and mid-sized retail enterprises rely heavily on daily sales, inventory replenishment, and promotional discount reports. In this work, we design and evaluate an open-source quarantine-first ETL and data quality monitoring platform.
 
+\section{Related Work}
+\subsection{ETL Architectures and Data Cleaning}
+Foundational research by Rahm and Do~\cite{rahm2000data} classified data quality anomalies into single-source and multi-source schema and instance violations, establishing the necessity of systematic cleaning phases prior to analytical aggregation. Vassiliadis~\cite{vassiliadis2009survey} surveyed Extract-Transform-Load (ETL) workflows, highlighting the trade-off between throughput optimization and fault tolerance during bulk ingestion. Traditional batch scripts frequently treat validation failures as fatal exceptions or silently drop malformed tuples, compromising downstream financial accuracy.
+
+\subsection{Automated Data Quality Verification and Observability}
+Modern declarative validation frameworks such as Amazon Deequ~\cite{schelter2018automating} and TensorFlow Data Validation (TFDV)~\cite{breck2019data} enable unit-test-style constraint verification over large datasets. However, distributed JVM-based engines introduce substantial operational overhead for small-to-midsize retail environments. Recent empirical studies on data pipeline observability~\cite{shankar2022operationalizing} emphasize that practitioners require lightweight, transparent audit trails and immediate visual feedback when upstream distributions shift. Our architecture bridges this gap by combining an embedded Python/SQL validation engine with deterministic row-level quarantine (\texttt{rejected_sales}), quantitative run scoring, and real-time Streamlit observability.
+
 \section{System Architecture}
 The pipeline follows a decoupled six-stage workflow: Extract -> Stage -> Validate and Quarantine -> Transform -> Load -> Report and Monitor. The run-level Data Quality Score is defined as $Q_{\text{run}} = (N_{\text{valid}} / N_{\text{total}}) \times 100$.
 
@@ -38,4 +45,6 @@ We evaluated the system across 1,100 fault-injection trials (1\% to 20\% corrupt
 \section{Conclusion}
 We presented a reproducible ETL and data quality monitoring architecture that eliminates silent data loss while automating business reporting and dashboard observability.
 
+\bibliographystyle{IEEEtran}
+\bibliography{references}
 \end{document}
