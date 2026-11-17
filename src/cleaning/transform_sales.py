@@ -1,7 +1,8 @@
-"""Transform raw_sales into enriched cleaned_sales with logging and quality gates."""
+"""Transform raw_sales into enriched cleaned_sales with quarantine and DQ audit logging."""
 
 import logging
 import sys
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 import pandas as pd
@@ -9,7 +10,7 @@ from sqlalchemy import create_engine, text
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 from config import DATABASE_URL, LOGS_DIR
-from validation.quality_checks import validate_cleaned_sales, validate_raw_sales
+from validation.quality_checks import ensure_audit_tables, validate_and_quarantine_sales, validate_cleaned_sales
 
 
 def configure_logging():
@@ -38,19 +39,28 @@ def transform_sales_data(raw_df):
 def main():
     logger = configure_logging()
     engine = create_engine(DATABASE_URL)
-    schema_sql = (Path(__file__).resolve().parent / "cleaned_schema.sql").read_text(encoding="utf-8")
+    run_id = f"RUN-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:6].upper()}"
+
+    clean_schema = (Path(__file__).resolve().parent / "cleaned_schema.sql").read_text(encoding="utf-8")
     with engine.begin() as conn:
-        conn.execute(text(schema_sql))
+        conn.execute(text(clean_schema))
+
+    audit_schema_path = Path(__file__).resolve().parent.parent / "sql" / "audit_and_reporting_schema.sql"
+    ensure_audit_tables(engine, audit_schema_path)
+
     raw_df = pd.read_sql("SELECT * FROM raw_sales", engine)
-    valid_products = set(pd.read_sql("SELECT product_id FROM products", engine)["product_id"])
-    valid_stores = set(pd.read_sql("SELECT store_id FROM stores", engine)["store_id"])
-    validated_df = validate_raw_sales(raw_df, valid_products, valid_stores)
+    products_df = pd.read_sql("SELECT product_id, unit_price FROM products", engine)
+    stores_df = pd.read_sql("SELECT store_id FROM stores", engine)
+
+    validated_df = validate_and_quarantine_sales(raw_df, products_df, stores_df, engine, run_id)
     cleaned_df = transform_sales_data(validated_df)
     validate_cleaned_sales(cleaned_df)
+
     with engine.begin() as conn:
         conn.execute(text("DELETE FROM cleaned_sales;"))
+
     cleaned_df.to_sql("cleaned_sales", con=engine, if_exists="append", index=False, chunksize=5000)
-    logger.info(f"Successfully loaded {len(cleaned_df):,} rows into cleaned_sales.")
+    logger.info(f"[Run {run_id}] Loaded {len(cleaned_df):,} clean records into cleaned_sales.")
 
 
 if __name__ == "__main__":
