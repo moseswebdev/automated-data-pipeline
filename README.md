@@ -24,6 +24,9 @@ End-to-end Python and SQL data engineering platform that ingests retail sales an
 +-------------------+      +------------------------+      +-----------------------+
 ```
 
+
+See the full [Technical Architecture Document](docs/ARCHITECTURE.md) for schema definitions, data flow diagrams, and data quality rule specifications.
+
 ## Quickstart
 
 1. **Activate virtual environment:** `venv\Scripts\activate`
