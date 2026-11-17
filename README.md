@@ -6,7 +6,7 @@ End-to-end Python and SQL data engineering platform that ingests retail sales an
 
 ## Live Dashboard Preview
 
-![Streamlit Data Quality and Reporting Dashboard](docs/dashboard_preview.png)
+![Streamlit Data Quality and Reporting Dashboard](docs/dashboard_preview.jpeg)
 
 ## Architecture
 
