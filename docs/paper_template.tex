@@ -1,0 +1,41 @@
+\documentclass[conference]{IEEEtran}
+\usepackage{graphix}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{hyperref}
+
+\title{Zero-Silent-Loss ETL Architecture: Deterministic Quarantine, Automated Quality Scoring, and Real-Time Observability for Retail Data Pipelines}
+
+\author{\IEEEauthorblockN{Moses Kiprono}
+\IEEEauthorblockA{\textit{Data Engineering and Analytics Research} \\
+Code Repository: \url{https://github.com/moseswebdev/automated-data-pipeline}}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Manual spreadsheet-driven business reporting in retail operations suffers from high latency, transcription errors, and silent data corruption when malformed records enter analytics pipelines. This paper presents an end-to-end, database-agnostic Extract-Transform-Load (ETL) and data quality monitoring architecture built with Python, SQLAlchemy, SQL, and Streamlit. Unlike conventional batch scripts that crash or silently discard anomalous rows, our architecture enforces a six-rule deterministic validation gate that quarantines defective records into a diagnostic audit table (\texttt{rejected_sales}) while computing run-level data quality scores (\texttt{data_quality_logs}). Empirical evaluation across synthetic retail workloads ranging from 10,000 to 250,000 transactions demonstrates 100.0\% anomaly recall under controlled fault injection (1\%--20\% corruption rates) and linear scaling throughput peaking at 63,854 records per second.
+\end{abstract}
+
+\begin{IEEEkeywords}
+ETL Pipeline, Data Quality Monitoring, Anomaly Quarantine, Business Intelligence, Automated Reporting, Software Engineering.
+\end{IEEEkeywords}
+\section{Introduction}
+Small and mid-sized retail enterprises rely heavily on daily sales, inventory replenishment, and promotional discount reports. In this work, we design and evaluate an open-source quarantine-first ETL and data quality monitoring platform.
+
+\section{System Architecture}
+The pipeline follows a decoupled six-stage workflow: Extract -> Stage -> Validate and Quarantine -> Transform -> Load -> Report and Monitor. The run-level Data Quality Score is defined as $Q_{\text{run}} = (N_{\text{valid}} / N_{\text{total}}) \times 100$.
+
+\section{Experimental Evaluation}
+We evaluated the system across 1,100 fault-injection trials (1\% to 20\% corruption rates) and scalability workloads from 10,000 to 250,000 transactions. Across all fault levels, the quarantine engine achieved 100.0\% recall in under 0.17 seconds, while end-to-end ETL throughput peaked at 63,854 rows/sec.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=\columnwidth]{paper_results/scalability_figure.png}}
+\caption{End-to-end ETL eexecution latency and row throughput across batch sizes from 10,000 to 250,000 records. Peak throughput reaches 63,854 rows/sec at 50,000 records.}
+\label{fig:scalability}
+\end{figure}
+
+\section{Conclusion}
+We presented a reproducible ETL and data quality monitoring architecture that eliminates silent data loss while automating business reporting and dashboard observability.
+
+\end{document}
